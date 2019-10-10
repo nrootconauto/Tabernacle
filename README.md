@@ -1,7 +1,7 @@
 # Project Tabernacle
 ## Intro
 This is a project to continue the legacy of Terry Davis(RIP) via  making a HolyC llvm frontend with libaries from templeOS that be used to run TempleOS at native speeds on different architectures. Join my Discord for More info
-https://discord.gg/umG42Bq/discord.gg/umG42Bq
+https://discord.gg/umG42Bq
 ##  Anyone Can Contribute Now
 This is a project that will allow any program who knows C to contribute,because i am making a "checklist" of basic things that can be written by anyone, including beginners and masters  ,so here is the Roadmap
 ### Roadmap
