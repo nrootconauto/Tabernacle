@@ -1,11 +1,8 @@
 #include "../../include/lexer/lexer.h"
-#include "../../include/e4c/e4c.h"
 #include <stdlib.h>
 #include <string.h>
-E4C_DEFINE_EXCEPTION(LexicalError,"LexicalError",RuntimeException);
-E4C_DEFINE_EXCEPTION
 const int incrementSize=64;
-U8* lexerLexString(U8* input) {
+U8* lexerLexString(U8* input,U64* _length) {
 	U8* text=malloc(incrementSize);
 	U8* where=text;
 	int reservedLength=incrementSize;
@@ -77,6 +74,7 @@ U8* lexerLexString(U8* input) {
 			strncpy(toWrite,input,2);
 			toWrite[2]=0;
 			addText(toWrite);
+			where+=2;
 			continue;
 		}
 		//octal
@@ -103,6 +101,7 @@ U8* lexerLexString(U8* input) {
 				vsprintf(errMsg,message,where[i]);
 				throw(LexicalError,errMsg);
 			}
+			where+=i;
 			char toAdd[2];
 			toAdd[1]=NULL;
 			*toAdd=value;
@@ -139,7 +138,9 @@ U8* lexerLexString(U8* input) {
 			buffer[0]=(value)|mask;
 			buffer[bytes]=NULL;
 			addText(buffer);
-			input+=(input[1]=='U')?8:4;
+			U64 inc=(input[1]=='U')?8:4;
+			where+=bytes;
+			input+=inc;
 			continue;
 		}
 		//TODO improve me
@@ -152,7 +153,9 @@ U8* lexerLexString(U8* input) {
 			text=realloc(text,reservedLength+incrementSize);
 			where=text+offset;
 		}
-		*where=input[0];
+		*(where++)=input[0];
 		input++;
 	}
+	*_length=where-text;
+	return text;
 }

@@ -15,11 +15,15 @@ typedef int64_t I64;
 //floats
 typedef double F64;
 
+//exceptions
+#include "../../include/e4c/e4c.h"
+E4C_DEFINE_EXCEPTION(LexicalError,"LexicalError",RuntimeException);
+
 //numbers
-I64 lexerLexIntSigned(U8* text,U8* err);
-U64 lexerLexUnsignedInt(U8* text,U8* err);
-F64 lexerLexFloat(U8* text,U8* err);
+I64 lexerLexSignedInt(U8* text,U8* length);
+U64 lexerLexUnSignedInt(U8* text,U8* length);
+F64 lexerLexFloat(U8* text,U8* length);
 
 //string
-U8* lexerLexString(U8*,U8*err);
+U8* lexerLexString(U8* text,U64* length); //src/lexer/lexerString.c
 #endif
