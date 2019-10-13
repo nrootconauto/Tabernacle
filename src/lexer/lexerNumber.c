@@ -1,6 +1,9 @@
 #include "../../include/lexer/lexer.h"
-//TODO add size checks within 
-I64 lexerLexUnSigned(U8* text,U64* length) {
+#include "../../include/slre/slre.h"
+#include <string.h>
+#include <stdio.h>
+//TODO add size checks within x
+U64 lexerLexUnSignedInt(U8* text,U64* length) {
 	if(text[0]=='0') { //octal
 		U64 getDigitOctal(U8 charactor) {
 			if('0'<=charactor&&charactor<='7')
@@ -51,11 +54,11 @@ I64 lexerLexUnSigned(U8* text,U64* length) {
 		U64 count=0;
 		U64 value=0;
 		U64 multiplyBy=1;
-		while('0'<=*input&&*input<='9') {
+		while('0'<=*text&&*text<='9') {
 			value+=(value-'0')*multiplyBy;
 			multiplyBy*=10;
 			count++;
-			input++;
+			text++;
 		}
 		*length=count;
 		return value;
@@ -70,4 +73,31 @@ I64 lexerLexSignedInt(U8* text,U64* length) {
 		return value;
 	}
 	return lexerLexUnSignedInt(text,length);
+}
+//const char* lexerFloatRegex1="([0-9]+\\.[0-9]*)";
+//const char* lexerFloatRegex2="([0-9]*\\.[0-9]+)";
+F64 lexerLexFloat(U8* where,U64* length) {
+	U8* getDigits(U8* where) {
+		if('0'<=*where&&*where<='9') {
+			where++;
+		}
+		return where;
+	}
+	//floats must have '.'
+	U8* dot=getDigits(where);
+	if(*dot!='.') {
+		*length=0;
+		return -1;
+	}
+	U8* afterDot=getDigits(dot+1);
+	//if found dot with no digits no
+	if(afterDot-dot==1&&dot-where==0) {
+		*length=0;
+		return -1;
+	}
+	F64 retVal;
+	U8 buffer[afterDot-where+1];
+	memcpy(buffer,where,afterDot-where);
+	vsprintf(buffer,"%lf",(double*)&retVal);
+	return retVal;
 }

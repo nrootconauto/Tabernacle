@@ -1,14 +1,25 @@
 #include "../../include/lexer/lexer.h"
+#include "../../include/e4c/e4c.h"
 #include <stdlib.h>
 #include <string.h>
+E4C_DEFINE_EXCEPTION(MalformedString,"Malformed String",RuntimeException);
+E4C_DEFINE_EXCEPTION(TooManyCharactors,"A charactor type only allows 1 charactor",RuntimeException);
 const int incrementSize=64;
-U8* lexerLexString(U8* input,U64* _length) {
+
+const char* invalidStringTerminators="\n";
+U8* __lexerLexString(U8* input,U64* _length,U8 endChar,U64 maximumRuns) {
 	U8* text=malloc(incrementSize);
 	U8* where=text;
-	int reservedLength=incrementSize;
-	int actualLength=0;
-	while(*input!=NULL) {
-		const char* sequencesPairs[][]={
+	U64 reservedLength=incrementSize;
+	U64 actualLength=0;
+	while(*input!=endChar) {
+		char* invalidP=invalidStringTerminators;
+		while(*invalidP!=0)
+			if(*invalidP==0||*(invalidP++)==*where)
+				throw(MalformedString,where);
+		if(*(_length--)==0)
+			throw(MalformedString,NULL);
+		const char* sequencesPairs[][2]={
 										{"\\\\","\\"},
 										{"\\a","\a"},
 										{"\\b","\b"},
@@ -31,12 +42,12 @@ U8* lexerLexString(U8* input,U64* _length) {
 				text=realloc(text,actualLength+reservedLength);
 				where=text+offset;
 			}
-			memcpy(where,literal);
+			memcpy(where,literal,length);
 			where+=length;
 		}
 		for(int i=0;i!=count;i++) {
 			U8* sequence=sequencesPairs[i][0];
-			if(strncmp(input,sequence,strlen(sequences))) {
+			if(0==strncmp(input,sequence,strlen(sequence))) {
 				U8* literal=sequencesPairs[i][1];
 				addText(literal);
 				break;
@@ -64,7 +75,7 @@ U8* lexerLexString(U8* input,U64* _length) {
 					throw(LexicalError,text);
 				}
 				value+=multiplyBy*digit;
-				base*=16;
+				multiplyBy*=16;
 			}
 		}
 		//hex
@@ -113,7 +124,7 @@ U8* lexerLexString(U8* input,U64* _length) {
 		const U64 ThreeByteUTF8Size=(1<<(5+6+6))-1;
 		const U64 FoutByteUTF8Size=(1<<(4+6+6+6))-1;
 	
-		if(0==strncmp(input,"\\u")|0==strncmp(input,"\\U",2)) {
+		if(0==strncmp(input,"\\u",2)|0==strncmp(input,"\\U",2)) {
 			U64 value;
 			if(input[1]=='U')
 				input=getHexDigitsAndParse(8);
@@ -158,4 +169,25 @@ U8* lexerLexString(U8* input,U64* _length) {
 	}
 	*_length=where-text;
 	return text;
+}
+U8* lexerLexString(U8* text,U64* length) {
+	if(*text=='"') {
+		U8* retVal=__lexerLexString(text,length,'"',-1);
+		length[0]++;
+		return retVal;
+	}
+	return NULL;
+}
+U8* lexerLexCharactor(U8* text,U64* length) {
+	if(*text=='\'') {
+		U8* retVal=__lexerLexString(text,length,'\'',1);
+		if(strlen(retVal)!=1) {
+			free(retVal);
+			throw(MalformedString,NULL);
+			return NULL;
+		}
+		length[0]++;
+		return *retVal;
+	}
+	return NULL;
 }
