@@ -9,8 +9,8 @@ This is a project that will allow any program who knows C to contribute,because 
  - [ ] Project Tabernacle
 	 - [ ] HolyC front-end
 		 - [ ] Lexer 
-			 - [ ] Strings
-			 - [ ] Integers
+			 - [x] Strings (Untested)
+			 - [x] Integers (Untested)
 			 - [ ]  Floats
 			 - [ ] Chars (https://templeos.holyc.xyz/Wb/Doc/CharOverview.html)
 			 - [ ] Keywords
