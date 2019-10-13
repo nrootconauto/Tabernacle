@@ -2,6 +2,7 @@
 #include "../../include/slre/slre.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
 //TODO add size checks within x
 U64 lexerLexUnSignedInt(U8* text,U64* length) {
 	if(0==strncmp(text,"0x",2)) {
@@ -84,11 +85,17 @@ I64 lexerLexSignedInt(U8* text,U64* length) {
 //const char* lexerFloatRegex1="([0-9]+\\.[0-9]*)";
 //const char* lexerFloatRegex2="([0-9]*\\.[0-9]+)";
 F64 lexerLexFloat(U8* where,U64* length) {
-	U8* getDigits(U8* where) {
-		if('0'<=*where&&*where<='9') {
-			where++;
+	U8* original=where;
+	F64 sign=1;
+	if(*where=='-') {
+		sign=-1;
+		where++;
+	}
+	U8* getDigits(U8* _where) {
+		while('0'<=*_where&&*_where<='9') {
+			_where++;
 		}
-		return where;
+		return _where;
 	}
 	//floats must have '.'
 	U8* dot=getDigits(where);
@@ -104,7 +111,9 @@ F64 lexerLexFloat(U8* where,U64* length) {
 	}
 	F64 retVal;
 	U8 buffer[afterDot-where+1];
-	memcpy(buffer,where,afterDot-where);
-	vsprintf(buffer,"%lf",(double*)&retVal);
-	return retVal;
+	buffer[afterDot-where]=0;
+	memcpy(buffer,original,afterDot-original);
+	sscanf(buffer,"%lf",&retVal);
+	*length=afterDot-original;
+	return retVal*sign;
 }

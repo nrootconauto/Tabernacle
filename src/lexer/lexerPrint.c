@@ -16,6 +16,9 @@ void lexerTokenPrint(lexerToken* token) {
 		case LEXER_TYPE_TOKEN_NAME:
 			printf("LEXER_TYPE_TOKEN_NAME:%s\n",token->value._tokenName);
 			return;
+		case LEXER_TYPE_FLOAT:
+			printf("LEXER_TYPE_FLOAT:%lf\n",token->value._F);
+			return;
 		default:
 			printf("Implement Me\n");
 	}
