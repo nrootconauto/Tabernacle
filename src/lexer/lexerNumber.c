@@ -4,28 +4,7 @@
 #include <stdio.h>
 //TODO add size checks within x
 U64 lexerLexUnSignedInt(U8* text,U64* length) {
-	if(text[0]=='0') { //octal
-		U64 getDigitOctal(U8 charactor) {
-			if('0'<=charactor&&charactor<='7')
-				return charactor-'0';
-			return -1;
-		}
-		text++;
-		U64 offset=-1;\
-		U64 digit;
-		U64 value=0;
-		U64 multiplyBy=1;
-		do {
-			digit=getDigitOctal(text++[0]);
-			offset++;
-			if(digit==-1)
-				break;
-			value+=multiplyBy*digit;
-			multiplyBy*=8;
-		} while(true);
-		*length=offset;
-		return value;
-	} else if(0==strncmp(text,"0x",2)) {
+	if(0==strncmp(text,"0x",2)) {
 		text+=2;
 		U64 getHexDigit(U8 charactor) {
 			if('0'<=charactor&&charactor<='9')
@@ -34,29 +13,57 @@ U64 lexerLexUnSignedInt(U8* text,U64* length) {
 				return charactor-'A'+10;
 			if('a'<=charactor&&charactor<='f')
 				return charactor-'a'+10;
+			return -1;
 		}
 		U64 count=0;
 		U64 value=0;
 		U64 multiplyBy=1;
 		for(;;count++) {
-			U64 digit=getHexDigit(text+count);
-			if(digit==-1) {
-				value+=multiplyBy*digit;
+			U64 digit=getHexDigit(text[count]);
+			if(digit!=-1) {
+				if(count!=0)
+					value*=16;
+				value+=digit;
 			} else
 				break;
-			multiplyBy*=16;
 		}
 		if(count==0) {
 			const char* errMsg="Expected hexidecimal Digits after \"0x\"\n\x00";
 			throw(LexicalError,errMsg);
 		}
- 	} else {
+		*length=count+2;
+		return value;
+ 	} else if(text[0]=='0') { //octal
+		U64 getDigitOctal(U8 charactor) {
+			if('0'<=charactor&&charactor<='7')
+				return charactor-'0';
+			return -1;
+		}
+		text++;
+		U64 offset=0;
+		U64 digit;
+		U64 value=0;
+		U64 multiplyBy=1;
+		do {
+			digit=getDigitOctal(text++[0]);
+			offset++;
+			if(digit==-1)
+				break;
+			if(offset!=1)
+				value*=8;
+			value+=digit;
+			
+		} while(true);
+		*length=offset;
+		return value;
+	} else {
 		U64 count=0;
 		U64 value=0;
 		U64 multiplyBy=1;
 		while('0'<=*text&&*text<='9') {
-			value+=(value-'0')*multiplyBy;
-			multiplyBy*=10;
+			value+=(*text-'0')*multiplyBy;
+			if(count!=0)
+				value*=10;
 			count++;
 			text++;
 		}
@@ -70,7 +77,7 @@ I64 lexerLexSignedInt(U8* text,U64* length) {
 	if(*text=='-') {
 		U64 value=lexerLexUnSignedInt(text+1,length);
 		length[0]++;
-		return value;
+		return -value;
 	}
 	return lexerLexUnSignedInt(text,length);
 }

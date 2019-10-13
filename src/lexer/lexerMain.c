@@ -12,9 +12,9 @@ lexerToken lexerTokenGetNextToken(U8* string,U64* length) {
 		retVal.type=LEXER_TYPE_FLOAT;
 		return retVal;
 	}
-	retVal.value._I=lexerLexSignedInt(string,length);
+	retVal.value._U=lexerLexUnSignedInt(string,length);
 	if(*length!=0) {
-		retVal.type=LEXER_TYPE_INT;
+		retVal.type=LEXER_TYPE_UINT;
 		return retVal;
 	}
 	retVal.value._str=lexerLexString(string,length);
@@ -22,9 +22,9 @@ lexerToken lexerTokenGetNextToken(U8* string,U64* length) {
 		retVal.type=LEXER_TYPE_STRING;
 		return retVal;
 	}
-	retVal.value._U=lexerLexUnSignedInt(string,length);
+	retVal.value._I=lexerLexSignedInt(string,length);
 	if(*length!=0) {
-		retVal.type=LEXER_TYPE_UINT;
+		retVal.type=LEXER_TYPE_INT;
 		return retVal;
 	}
 	retVal.value._U=lexerLexCharactor(string,length);
