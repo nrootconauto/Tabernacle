@@ -11,10 +11,10 @@ This is a project that will allow any program who knows C to contribute,because 
 		 - [ ] Lexer 
 			 - [x] Strings (Untested)
 			 - [x] Integers (Untested)
-			 - [ ]  Floats
+			 - [x]  Floats
 			 - [ ] Chars (https://templeos.holyc.xyz/Wb/Doc/CharOverview.html)
-			 - [ ] Keywords
-			 - [ ] Operators
+			 - [x] Keywords
+			 - [x] Operators
 			 - [ ] Preprocessor
 		 - [ ]  Parser
 			 - [ ] Precedence
